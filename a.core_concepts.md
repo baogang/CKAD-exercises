@@ -8,7 +8,8 @@
 
 ```bash
 kubectl create namespace mynamespace
-kubectl run nginx --image=nginx --restart=Never -n mynamespace
+kubectl run nginx --generator=run-pod/v1 --image=nginx --restart=Never --namespace=mynamespace
+kubectl get pod --all-namespaces
 ```
 
 </p>
@@ -21,12 +22,17 @@ kubectl run nginx --image=nginx --restart=Never -n mynamespace
 
 Easily generate YAML with:
 
+```clean
+kubectl delete pod nginx --namespace=mynamespace
+```
 ```bash
 kubectl run nginx --image=nginx --restart=Never --dry-run -o yaml > pod.yaml
+kubectl run nginx --generator=run-pod/v1 --image=nginx --restart=Never --namespace=mynamespace -o yaml > nginxpod.yaml
 ```
 
 ```bash
 cat pod.yaml
+cat nginxpod.yaml
 ```
 
 ```yaml
@@ -46,6 +52,58 @@ spec:
   dnsPolicy: ClusterFirst
   restartPolicy: Never
 status: {}
+```
+
+```nginxpod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2019-05-13T07:26:31Z"
+  labels:
+    run: nginx
+  name: nginx
+  namespace: mynamespace
+  resourceVersion: "1595"
+  selfLink: /api/v1/namespaces/mynamespace/pods/nginx
+  uid: 6df8be9f-7550-11e9-8147-0242ac110052
+spec:
+  containers:
+  - image: nginx
+    imagePullPolicy: Always
+    name: nginx
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-548rl
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  priority: 0
+  restartPolicy: Never
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: default-token-548rl
+    secret:
+      defaultMode: 420
+      secretName: default-token-548rl
+status:
+  phase: Pending
+  qosClass: BestEffort
 ```
 
 ```bash
@@ -85,6 +143,7 @@ kubectl logs busybox
 ```bash
 # create a  YAML template with this command
 kubectl run busybox --image=busybox --restart=Never --dry-run -o yaml --command  -- env > envpod.yaml
+# make sure --command -- env after -o yaml or it will create a pod
 # see it
 cat envpod.yaml
 ```

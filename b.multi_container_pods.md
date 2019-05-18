@@ -43,5 +43,32 @@ exit
 kubectl delete po busybox
 ```
 
+```YMYAML
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: busybox
+  name: busybox
+spec:
+  containers:
+  - image: busybox
+    imagePullPolicy: IfNotPresent
+    name: busybox
+    command: ["sh"]
+    args: ["-c", "echo hello; sleep 3600;"]
+    resources: {}
+  - image: busybox
+    imagePullPolicy: IfNotPresent
+    name: busybox2
+    command: ["sh"]
+    args: ["-c", "echo hello; sleep 3600;"]
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+```
+
 </p>
 </details>
